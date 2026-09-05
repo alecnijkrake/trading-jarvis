@@ -11,6 +11,37 @@ async function fetchTwitterPosts(coinName) {
     throw new Error('X_BEARER_TOKEN not configured');
   }
 
+  const query = `${coinName} (memecoin OR token OR crypto) -is:retweet lang:en`;
+  
+  try {
+    const url = `https://api.twitter.com/2/tweets/search/recent?query=${encodeURIComponent(query)}&max_results=50&tweet.fields=created_at,author_id,public_metrics&expansions=author_id&user.fields=username,public_metrics,verified`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${bearerToken}`,
+        'User-Agent': 'Trading-Jarvis-Bot/1.0',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Twitter API error:', response.status);
+      return generateMockData(coinName);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return generateMockData(coinName);
+  }
+}
+  const bearerToken = process.env.X_BEARER_TOKEN;
+  
+  if (!bearerToken) {
+    throw new Error('X_BEARER_TOKEN not configured');
+  }
+
   // Search for posts about the coin
   const query = `${coinName} (memecoin OR token OR crypto) -is:retweet lang:en`;
   
